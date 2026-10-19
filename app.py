@@ -14,8 +14,13 @@ Never infer owners or dates. Return ONLY JSON:
 
 st.title("Meeting Intelligence")
 audio = st.file_uploader("Upload a short meeting recording", type=["mp3", "wav", "m4a"])
-model = st.selectbox("Model", ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"])
+@st.cache_data(ttl=3600)
+def chat_models():
+    ids = [m.id for m in client.models.list().data]
+    skip = ("whisper", "guard", "tts", "orpheus", "playai", "distil")
+    return sorted(i for i in ids if not any(s in i for s in skip))
 
+model = st.selectbox("Model", chat_models())
 if audio and st.button("Analyze"):
     with st.spinner("Transcribing..."):
         tr = client.audio.transcriptions.create(
