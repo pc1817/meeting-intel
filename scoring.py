@@ -131,7 +131,11 @@ def score_clip(gold, result, transcript):
                     row["flag"] = "invented owner"
             else:
                 d["req_found"] += 1
-                o, du = owner_ok(g.get("owner"), a.get("owner")), due_ok(g.get("due"), a.get("due"))
+                if g.get("owner"):
+                    o = owner_ok(g.get("owner"), a.get("owner"))
+                else:  # gold says nobody was assigned: model must not invent an owner
+                    o = name_key(a.get("owner")) in NO_OWNER
+                du = due_ok(g.get("due"), a.get("due"))
                 d["owner_ok"] += o
                 d["due_ok"] += du
                 row.update(owner_correct=o, due_correct=du)
