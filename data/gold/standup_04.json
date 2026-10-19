@@ -1,0 +1,12 @@
+{
+  "clip_id": "standup_04",
+  "trap": "ambiguous_owner",
+  "actions": [
+    {"task": "follow up with Customer Success and request the missing figures", "owner": "Nina", "due": "Wednesday"},
+    {"task": "send the report to leadership", "owner": null, "due": "Friday", "optional": true}
+  ],
+  "not_actions": ["add a forecast for next quarter"],
+  "decisions": [{"text": "include a comparison against last month's results in the report"}],
+  "not_decisions": [],
+  "open_questions": ["who owns final report distribution", "Customer Success data still unverified", "whether a next-quarter forecast is feasible"]
+}
