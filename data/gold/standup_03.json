@@ -1,0 +1,13 @@
+{
+  "clip_id": "standup_03",
+  "trap": "reversed_decision",
+  "actions": [
+    {"task": "contact Vendor B to request the updated contract", "owner": "James", "due": "Wednesday"},
+    {"task": "compare final pricing against the approved budget", "owner": "Maria", "due": "Friday"},
+    {"task": "reconvene to check outstanding requirements", "owner": null, "due": "Thursday", "optional": true}
+  ],
+  "not_actions": [],
+  "decisions": [{"text": "move forward with Vendor B"}],
+  "not_decisions": ["proceed with Vendor A"],
+  "open_questions": ["contract not signed; selection pending contract review"]
+}
