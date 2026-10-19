@@ -1,0 +1,9 @@
+{
+  "clip_id": "standup_05",
+  "trap": "discussed_not_committed",
+  "actions": [],
+  "not_actions": ["create an onboarding video", "add a checklist to the welcome email", "schedule a weekly onboarding Q&A"],
+  "decisions": [],
+  "not_decisions": ["choose between video and written guide"],
+  "open_questions": ["video vs improved written guide", "who would organize a weekly Q&A, if it happens"]
+}
