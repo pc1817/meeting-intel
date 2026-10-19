@@ -5,7 +5,7 @@
     {"task": "review vendor contract and flag concerns", "owner": "Jun", "due": "before Wednesday"},
     {"task": "prepare updated project timeline for new launch date", "owner": "Alex", "due": "Thursday"},
     {"task": "gather onboarding requirements and share at next meeting", "owner": "Sarah", "due": "next meeting"},
-    {"task": "review open items and confirm ownership", "owner": null, "due": "next standup", "borderline": true}
+    {"task": "review open items and confirm ownership", "owner": null, "due": "next standup", "optional": true}
   ],
   "decisions": [{"text": "postpone product launch until March"}],
   "open_questions": ["who owns onboarding", "vendor confirmation on revised delivery schedule"]
