@@ -1,0 +1,12 @@
+{
+  "clip_id": "standup_02",
+  "trap": "tentative",
+  "actions": [
+    {"task": "send revised campaign visuals to the team", "owner": "Priya", "due": "Thursday"},
+    {"task": "review campaign performance", "owner": null, "due": "next Monday", "optional": true}
+  ],
+  "not_actions": ["Sam looks at the budget and suggests cost cuts", "run an A/B test"],
+  "decisions": [],
+  "not_decisions": ["increase advertising spend"],
+  "open_questions": ["budget not finalized", "whether to increase advertising spend", "who will take on the A/B test"]
+}
