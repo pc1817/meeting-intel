@@ -1,0 +1,13 @@
+{
+  "clip_id": "standup_07",
+  "split": "holdout",
+  "trap": "we_should_deferred",
+  "actions": [
+    {"task": "verify the current lead totals against the CRM", "owner": "Omar", "due": "this afternoon"},
+    {"task": "review the reporting gap and decide how to handle the new breakdown", "owner": null, "due": "next check-in", "optional": true}
+  ],
+  "not_actions": ["add a campaign-by-campaign breakdown by Thursday"],
+  "decisions": [],
+  "not_decisions": ["add the campaign-by-campaign breakdown"],
+  "open_questions": ["who will own the proposed campaign breakdown", "whether the team will approve it"]
+}
