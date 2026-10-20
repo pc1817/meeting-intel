@@ -1,0 +1,9 @@
+Nina: The weekly performance report still doesn't show how many leads came from each campaign.
+
+Omar: We should add a campaign-by-campaign breakdown by Thursday so leadership can compare the results before Friday's review.
+
+Nina: That would be useful. We also need to make sure the numbers match the CRM.
+
+Omar: Right. I'll verify the current lead totals against the CRM this afternoon.
+
+Nina: Okay, let's review the reporting gap at our next check-in and decide how to handle the new breakdown.
