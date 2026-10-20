@@ -150,7 +150,12 @@ with tab_eval:
                     res, raw, lat, tok = extract_retry(m, tr, int(max_tok) or None, version)
                     err = None
                 except Exception as e:  # rate limit, 404, etc.
-                    res, raw, lat, tok, err = None, "", None, None, str(e)[:300]
+                    msg = str(e)
+                    if "json_validate_failed" in msg:
+                        # The model itself failed to produce valid JSON: score it as a failure, not an API error.
+                        res, raw, lat, tok, err = None, msg[:300], None, None, None
+                    else:
+                        res, raw, lat, tok, err = None, "", None, None, msg[:300]
                 # API errors are NOT scored: they say nothing about the model.
                 rows.append({"clip": stem, "split": gold.get("split", "dev"), "result": res,
                              "raw": raw if res is None else "", "latency_s": lat, "tokens": tok,
@@ -182,7 +187,8 @@ with tab_eval:
         st.dataframe(pd.DataFrame(board).T)
         st.caption("clips_clean = no missed required actions, wrong owners, trap hits, invented owners, "
                    "extra actions or false decisions. Due dates are scored separately (due_acc_%). "
-                   "Clips that hit an API error are excluded (see clips_scored), not counted as failures.")
+                   "Clips that hit an API error (e.g. rate limits) are excluded (see clips_scored); a model failing to "
+                   "produce valid JSON counts as a failure.")
 
         st.subheader("Clean clips (trap test)")
         matrix = {m: {r["clip"]: ("ERROR" if r["error"] else "PASS" if r["score"]["clean"] else "FAIL")
