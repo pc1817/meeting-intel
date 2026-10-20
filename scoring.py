@@ -54,6 +54,12 @@ def name_key(s):
     return re.sub(r"[^a-z]", "", (s or "").lower())
 
 
+def no_owner(x):
+    """True when the value means 'nobody in particular' (null, team, the team, we...)."""
+    k = name_key(x)
+    return k in NO_OWNER or (k.startswith("the") and k[3:] in NO_OWNER)
+
+
 def owner_ok(g, m):
     g, m = name_key(g), name_key(m)
     if not g or not m:
@@ -126,7 +132,7 @@ def score_clip(gold, result, transcript):
                        model_due=a.get("due"), match=round(s, 2))
             if opt:
                 d["opt_found"] += 1
-                if name_key(a.get("owner")) not in NO_OWNER:
+                if not no_owner(a.get("owner")):
                     d["invented_owner"] += 1
                     row["flag"] = "invented owner"
             else:
@@ -134,7 +140,7 @@ def score_clip(gold, result, transcript):
                 if g.get("owner"):
                     o = owner_ok(g.get("owner"), a.get("owner"))
                 else:  # gold says nobody was assigned: model must not invent an owner
-                    o = name_key(a.get("owner")) in NO_OWNER
+                    o = no_owner(a.get("owner"))
                 du = due_ok(g.get("due"), a.get("due"))
                 d["owner_ok"] += o
                 d["due_ok"] += du
