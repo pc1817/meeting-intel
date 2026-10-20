@@ -47,19 +47,34 @@ def parse_json(text):
         return None
 
 
-def extract(model, transcript):
+def extract(model, transcript, max_tokens=None):
     t0 = time.time()
+    kwargs = {"max_tokens": max_tokens} if max_tokens else {}
     resp = client.chat.completions.create(
         model=model,
         messages=[{"role": "system", "content": SYSTEM},
                   {"role": "user", "content": transcript[:20000]}],
         response_format={"type": "json_object"},
         temperature=0,
+        **kwargs,
     )
     latency = time.time() - t0
     raw = resp.choices[0].message.content
     usage = getattr(resp, "usage", None)
     return parse_json(raw), raw, latency, getattr(usage, "total_tokens", None)
+
+
+def extract_retry(model, transcript, max_tokens=None, tries=3, wait=20):
+    """Retry per-minute rate limits (429). 'Request too large' will not be retried."""
+    for i in range(tries):
+        try:
+            return extract(model, transcript, max_tokens)
+        except Exception as e:
+            msg = str(e)
+            if "429" in msg and "too large" not in msg.lower() and i < tries - 1:
+                time.sleep(wait)
+                continue
+            raise
 
 
 def load_clips():
@@ -126,6 +141,12 @@ with tab_eval:
     chosen = st.multiselect("Models to compare", models,
                             help="Each model runs once per clip. Start with 1-2 models to save quota.")
     st.caption(f"{len(clips) * len(chosen)} API calls will be made. Prompt version: {PROMPT_VERSION}.")
+    o1, o2 = st.columns(2)
+    max_tok = o1.number_input("Max output tokens (0 = model default)", 0, 4000, 0, 100,
+                              help="Set ~900 if a model returns 429 'Request too large'. "
+                                   "Reasoning models (gpt-oss) need the default or higher, or JSON gets cut off.")
+    pause = o2.number_input("Seconds between calls", 0, 60, 1,
+                            help="Raise to ~25 for models with a low per-minute token limit.")
 
     if st.button("Run evaluation", disabled=not (clips and chosen)):
         results = {}
@@ -135,16 +156,17 @@ with tab_eval:
             rows = []
             for stem, gold, tr in clips:
                 try:
-                    res, raw, lat, tok = extract(m, tr)
+                    res, raw, lat, tok = extract_retry(m, tr, int(max_tok) or None)
                     err = None
                 except Exception as e:  # rate limit, 404, etc.
                     res, raw, lat, tok, err = None, "", None, None, str(e)[:300]
+                # API errors are NOT scored: they say nothing about the model.
                 rows.append({"clip": stem, "result": res, "raw": raw if res is None else "",
                              "latency_s": lat, "tokens": tok, "error": err,
-                             "score": score_clip(gold, res, tr)})
+                             "score": None if err else score_clip(gold, res, tr)})
                 done += 1
                 bar.progress(done / total)
-                time.sleep(1)
+                time.sleep(pause)
             results[m] = rows
         st.session_state["eval"] = {
             "prompt_version": PROMPT_VERSION,
@@ -157,16 +179,18 @@ with tab_eval:
         st.subheader("Scoreboard")
         board = {}
         for m, rows in ev["results"].items():
-            agg = aggregate([r["score"] for r in rows],
-                            [r["latency_s"] for r in rows if r["latency_s"] is not None])
-            agg["api_errors"] = sum(1 for r in rows if r["error"])
+            ok_rows = [r for r in rows if not r["error"]]
+            agg = aggregate([r["score"] for r in ok_rows],
+                            [r["latency_s"] for r in ok_rows if r["latency_s"] is not None])
+            agg = {"clips_scored": f"{len(ok_rows)}/{len(rows)}", **agg}
             board[m] = agg
         st.dataframe(pd.DataFrame(board).T)
         st.caption("clips_clean = no missed required actions, wrong owners, trap hits, invented owners, "
-                   "extra actions or false decisions. Due dates are scored separately (due_acc_%).")
+                   "extra actions or false decisions. Due dates are scored separately (due_acc_%). "
+                   "Clips that hit an API error are excluded (see clips_scored), not counted as failures.")
 
         st.subheader("Clean clips (trap test)")
-        matrix = {m: {r["clip"]: ("PASS" if r["score"]["clean"] else "FAIL") for r in rows}
+        matrix = {m: {r["clip"]: ("ERROR" if r["error"] else "PASS" if r["score"]["clean"] else "FAIL") for r in rows}
                   for m, rows in ev["results"].items()}
         st.dataframe(pd.DataFrame(matrix).T)
 
