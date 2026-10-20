@@ -1,0 +1,13 @@
+{
+  "clip_id": "standup_08",
+  "split": "holdout",
+  "trap": "tentative_suggestion",
+  "actions": [
+    {"task": "bring two recent missed follow-up cases to the next meeting", "owner": "Ella", "due": "next meeting"},
+    {"task": "revisit the text-message idea after reviewing the cases", "owner": null, "due": "after next meeting", "optional": true}
+  ],
+  "not_actions": ["send a text message as a second touchpoint"],
+  "decisions": [],
+  "not_decisions": ["introduce text message follow-ups"],
+  "open_questions": ["whether customers consented to receive texts", "whether the current follow-up process is the problem"]
+}
