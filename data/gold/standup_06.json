@@ -1,0 +1,13 @@
+{
+  "clip_id": "standup_06",
+  "split": "holdout",
+  "trap": "reversed_decision",
+  "actions": [
+    {"task": "migrate the current task board into Monday.com", "owner": "Leo", "due": "before next team sync"},
+    {"task": "check whether existing task owners can be transferred automatically", "owner": "Leo", "due": null}
+  ],
+  "not_actions": [],
+  "decisions": [{"text": "use Monday.com"}],
+  "not_decisions": ["go with Asana"],
+  "open_questions": ["whether existing task owners can be transferred automatically"]
+}
