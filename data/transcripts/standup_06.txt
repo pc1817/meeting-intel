@@ -1,0 +1,11 @@
+Maya: I looked at both project management tools. Yesterday, we were leaning toward Asana because the interface seemed easier for the team.
+
+Leo: I tested the reporting features this morning, and Asana doesn't give us the workload breakdown we need without an extra add-on.
+
+Maya: In that case, let's go with Monday.com instead. We need the workload reporting built in.
+
+Leo: Agreed. I'll migrate the current task board into Monday.com before our next team sync.
+
+Maya: Sounds good. Let's use Monday.com going forward.
+
+Leo: I'll also check whether we can transfer the existing task owners automatically.
