@@ -1,3 +1,4 @@
+import hmac
 import json
 import re
 import time
@@ -13,6 +14,12 @@ from scoring import REQ, aggregate, grounded, score_clip
 
 ROOT = Path(__file__).parent
 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+
+
+# ---------------------------------------------------------------- helpers
+def unlocked():
+    """Run buttons spend the owner's API quota, so they need APP_PASSWORD (set in Streamlit secrets)."""
+    return bool(st.session_state.get("auth"))
 
 
 @st.cache_data(ttl=3600)
@@ -76,143 +83,217 @@ def load_clips():
     return clips
 
 
+def load_saved():
+    saved = []
+    for p in sorted((ROOT / "data" / "results").glob("*.json")):
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if isinstance(d, dict) and "results" in d and "prompt_version" in d:
+            saved.append({"file": p.name, **d})
+    return saved
+
+
+def rescore(results, clips):
+    """Re-score saved outputs with the current scorer and gold files (no API calls)."""
+    cmap = {stem: (gold, tr) for stem, gold, tr in clips}
+    out = {}
+    for model, rows in results.items():
+        new = []
+        for r in rows:
+            r = dict(r)
+            if r["clip"] in cmap:
+                gold, tr = cmap[r["clip"]]
+                r["split"] = gold.get("split", "dev")
+                if not r["error"]:
+                    r["score"] = score_clip(gold, r["result"], tr)
+            r.setdefault("split", "dev")
+            new.append(r)
+        out[model] = new
+    return out
+
+
+def render_results(results, version, key):
+    splits = sorted({r["split"] for rows in results.values() for r in rows})
+    view = st.radio("Clips to show", ["all"] + splits, horizontal=True, key=f"{key}_view") if len(splits) > 1 else "all"
+    view_rows = {m: [r for r in rows if view == "all" or r["split"] == view] for m, rows in results.items()}
+
+    st.subheader(f"Scoreboard (prompt {version}, clips: {view})")
+    board = {}
+    for m, rows in view_rows.items():
+        ok_rows = [r for r in rows if not r["error"]]
+        agg = aggregate([r["score"] for r in ok_rows],
+                        [r["latency_s"] for r in ok_rows if r["latency_s"] is not None])
+        board[m] = {"clips_scored": f"{len(ok_rows)}/{len(rows)}", **agg}
+    st.dataframe(pd.DataFrame(board).T)
+    st.caption("clips_clean = no missed required actions, wrong owners, trap hits, invented owners, "
+               "extra actions or false decisions. Due dates are scored separately (due_acc_%). "
+               "Clips that hit an API error (e.g. rate limits) are excluded (see clips_scored); a model failing to "
+               "produce valid JSON counts as a failure.")
+
+    st.subheader("Clean clips (trap test)")
+    matrix = {m: {r["clip"]: ("ERROR" if r["error"] else "PASS" if r["score"]["clean"] else "FAIL")
+                  for r in rows} for m, rows in view_rows.items()}
+    st.dataframe(pd.DataFrame(matrix).T)
+
+    st.subheader("Inspect a clip")
+    c1, c2 = st.columns(2)
+    pick_m = c1.selectbox("Model", list(view_rows), key=f"{key}_model")
+    pick_c = c2.selectbox("Clip", [r["clip"] for r in view_rows[pick_m]], key=f"{key}_clip")
+    row = next(r for r in view_rows[pick_m] if r["clip"] == pick_c)
+    if row["error"]:
+        st.error(row["error"])
+    elif row["result"] is None:
+        st.error("Invalid JSON from model")
+        st.code(row["raw"])
+    else:
+        st.dataframe(pd.DataFrame(row["score"]["details"]))
+        with st.expander("Raw model output"):
+            st.json(row["result"])
+
+
+# ---------------------------------------------------------------- page
 st.title("Meeting Intelligence")
-tab_run, tab_eval = st.tabs(["Analyze audio", "Evaluate models"])
-models = chat_models()
 
-# ---------------- Tab 1: analyze one recording ----------------
+with st.sidebar:
+    st.header("Owner access")
+    if unlocked():
+        st.success("Unlocked")
+    else:
+        pw = st.text_input("Password", type="password",
+                           help="Running models uses the owner's API quota, so it is locked for visitors.")
+        expected = st.secrets.get("APP_PASSWORD", "")
+        if pw and expected and hmac.compare_digest(pw.encode(), str(expected).encode()):
+            st.session_state["auth"] = True
+            st.rerun()
+        elif pw:
+            st.error("Wrong password")
+        if not expected:
+            st.caption("No APP_PASSWORD secret is set, so running is disabled.")
+
+tab_saved, tab_run, tab_eval = st.tabs(["Saved results", "Analyze audio", "Run evaluation"])
+clips = load_clips()
+
+# ---------------- Tab: saved results (public, no API calls) ----------------
+with tab_saved:
+    saved = load_saved()
+    if not saved:
+        st.info("No saved results found in data/results/.")
+    else:
+        versions = sorted({s["prompt_version"] for s in saved})
+        version = st.selectbox("Prompt version", versions, index=len(versions) - 1, key="saved_version")
+        merged = {}
+        for s in sorted([s for s in saved if s["prompt_version"] == version], key=lambda s: s["run_at"]):
+            merged.update(s["results"])
+        files = [s["file"] for s in saved if s["prompt_version"] == version]
+        st.caption(f"{len(merged)} model(s) from {len(files)} saved file(s). "
+                   "Outputs are re-scored with the current scorer and gold files; no API calls are made here.")
+        render_results(rescore(merged, clips), version, "saved")
+
+# ---------------- Tab: analyze one recording (owner only) ----------------
 with tab_run:
-    audio = st.file_uploader("Upload a short meeting recording", type=["mp3", "wav", "m4a"])
-    model = st.selectbox("Model", models, key="run_model")
+    if not unlocked():
+        st.info("Locked: this tab calls the owner's API quota. Visitors can explore the Saved results tab.")
+    else:
+        models = chat_models()
+        audio = st.file_uploader("Upload a short meeting recording", type=["mp3", "wav", "m4a"])
+        model = st.selectbox("Model", models, key="run_model")
 
-    if audio and st.button("Analyze"):
-        with st.spinner("Transcribing..."):
-            tr = client.audio.transcriptions.create(
-                file=(audio.name, audio.read()),
-                model="whisper-large-v3-turbo",
-            )
-            transcript = tr.text
-        with st.expander("Transcript"):
-            st.write(transcript)
+        if audio and st.button("Analyze"):
+            with st.spinner("Transcribing..."):
+                tr = client.audio.transcriptions.create(
+                    file=(audio.name, audio.read()),
+                    model="whisper-large-v3-turbo",
+                )
+                transcript = tr.text
+            with st.expander("Transcript"):
+                st.write(transcript)
 
-        with st.spinner("Extracting..."):
-            result, raw, latency, tokens = extract(model, transcript)
-        if result is None:
-            st.error("Model did not return valid JSON.")
-            st.code(raw)
-            st.stop()
+            with st.spinner("Extracting..."):
+                result, raw, latency, tokens = extract(model, transcript)
+            if result is None:
+                st.error("Model did not return valid JSON.")
+                st.code(raw)
+                st.stop()
 
-        st.subheader("Summary")
-        st.write(result.get("summary", ""))
-        st.subheader("Decisions")
-        st.json(result.get("decisions", []))
+            st.subheader("Summary")
+            st.write(result.get("summary", ""))
+            st.subheader("Decisions")
+            st.json(result.get("decisions", []))
 
-        st.subheader("Action items")
-        actions = [a for a in result.get("actions", []) if isinstance(a, dict)]
-        rows = []
-        for a in actions:
-            ok, score = grounded(a.get("evidence_quote", ""), transcript)
-            rows.append({**a, "grounded": ok, "match": round(score, 2)})
-        st.dataframe(rows)
-
-        c1, c2 = st.columns(2)
-        c1.metric("Ungrounded actions", f"{sum(not r['grounded'] for r in rows)} / {len(rows)}")
-        c2.metric("Schema-valid actions", f"{sum(REQ <= set(a) for a in actions)} / {len(actions)}")
-
-        st.subheader("Open questions")
-        st.write(result.get("open_questions", []))
-        st.caption(f"model: {model} | prompt: {DEFAULT_PROMPT} | {latency:.1f}s | tokens: {tokens}")
-
-# ---------------- Tab 2: evaluate models on the gold set ----------------
-with tab_eval:
-    clips = load_clips()
-    st.write(f"{len(clips)} clips loaded from `data/` (transcripts paired with gold files).")
-    chosen = st.multiselect("Models to compare", models,
-                            help="Each model runs once per clip. Start with 1-2 models to save quota.")
-    versions = list(PROMPTS)
-    version = st.selectbox("Prompt version", versions, index=versions.index(DEFAULT_PROMPT))
-    st.caption(f"{len(clips) * len(chosen)} API calls will be made.")
-    o1, o2 = st.columns(2)
-    max_tok = o1.number_input("Max output tokens (0 = model default)", 0, 4000, 0, 100,
-                              help="Set ~900 if a model returns 429 'Request too large'. "
-                                   "Reasoning models (gpt-oss) need the default or higher, or JSON gets cut off.")
-    pause = o2.number_input("Seconds between calls", 0, 60, 1,
-                            help="Raise to ~25 for models with a low per-minute token limit.")
-
-    if st.button("Run evaluation", disabled=not (clips and chosen)):
-        results = {}
-        bar = st.progress(0.0)
-        total, done = len(clips) * len(chosen), 0
-        for m in chosen:
+            st.subheader("Action items")
+            actions = [a for a in result.get("actions", []) if isinstance(a, dict)]
             rows = []
-            for stem, gold, tr in clips:
-                try:
-                    res, raw, lat, tok = extract_retry(m, tr, int(max_tok) or None, version)
-                    err = None
-                except Exception as e:  # rate limit, 404, etc.
-                    msg = str(e)
-                    if "json_validate_failed" in msg:
-                        # The model itself failed to produce valid JSON: score it as a failure, not an API error.
-                        res, raw, lat, tok, err = None, msg[:300], None, None, None
-                    else:
-                        res, raw, lat, tok, err = None, "", None, None, msg[:300]
-                # API errors are NOT scored: they say nothing about the model.
-                rows.append({"clip": stem, "split": gold.get("split", "dev"), "result": res,
-                             "raw": raw if res is None else "", "latency_s": lat, "tokens": tok,
-                             "error": err, "score": None if err else score_clip(gold, res, tr)})
-                done += 1
-                bar.progress(done / total)
-                time.sleep(pause)
-            results[m] = rows
-        st.session_state["eval"] = {
-            "prompt_version": version,
-            "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "results": results,
-        }
+            for a in actions:
+                ok, score = grounded(a.get("evidence_quote", ""), transcript)
+                rows.append({**a, "grounded": ok, "match": round(score, 2)})
+            st.dataframe(rows)
 
-    ev = st.session_state.get("eval")
-    if ev:
-        splits = sorted({r["split"] for rows in ev["results"].values() for r in rows})
-        view = st.radio("Clips to show", ["all"] + splits, horizontal=True) if len(splits) > 1 else "all"
-        view_rows = {m: [r for r in rows if view == "all" or r["split"] == view]
-                     for m, rows in ev["results"].items()}
+            c1, c2 = st.columns(2)
+            c1.metric("Ungrounded actions", f"{sum(not r['grounded'] for r in rows)} / {len(rows)}")
+            c2.metric("Schema-valid actions", f"{sum(REQ <= set(a) for a in actions)} / {len(actions)}")
 
-        st.subheader(f"Scoreboard (prompt {ev['prompt_version']}, clips: {view})")
-        board = {}
-        for m, rows in view_rows.items():
-            ok_rows = [r for r in rows if not r["error"]]
-            agg = aggregate([r["score"] for r in ok_rows],
-                            [r["latency_s"] for r in ok_rows if r["latency_s"] is not None])
-            board[m] = {"clips_scored": f"{len(ok_rows)}/{len(rows)}", **agg}
-        st.dataframe(pd.DataFrame(board).T)
-        st.caption("clips_clean = no missed required actions, wrong owners, trap hits, invented owners, "
-                   "extra actions or false decisions. Due dates are scored separately (due_acc_%). "
-                   "Clips that hit an API error (e.g. rate limits) are excluded (see clips_scored); a model failing to "
-                   "produce valid JSON counts as a failure.")
+            st.subheader("Open questions")
+            st.write(result.get("open_questions", []))
+            st.caption(f"model: {model} | prompt: {DEFAULT_PROMPT} | {latency:.1f}s | tokens: {tokens}")
 
-        st.subheader("Clean clips (trap test)")
-        matrix = {m: {r["clip"]: ("ERROR" if r["error"] else "PASS" if r["score"]["clean"] else "FAIL")
-                      for r in rows} for m, rows in view_rows.items()}
-        st.dataframe(pd.DataFrame(matrix).T)
+# ---------------- Tab: run a new evaluation (owner only) ----------------
+with tab_eval:
+    if not unlocked():
+        st.info("Locked: running an evaluation calls the owner's API quota. See the Saved results tab for the results.")
+    else:
+        models = chat_models()
+        st.write(f"{len(clips)} clips loaded from `data/` (transcripts paired with gold files).")
+        chosen = st.multiselect("Models to compare", models,
+                                help="Each model runs once per clip. Start with 1-2 models to save quota.")
+        versions = list(PROMPTS)
+        version = st.selectbox("Prompt version", versions, index=versions.index(DEFAULT_PROMPT), key="run_version")
+        st.caption(f"{len(clips) * len(chosen)} API calls will be made.")
+        o1, o2 = st.columns(2)
+        max_tok = o1.number_input("Max output tokens (0 = model default)", 0, 4000, 0, 100,
+                                  help="Set ~900 if a model returns 429 'Request too large'. "
+                                       "Reasoning models (gpt-oss) need the default or higher, or JSON gets cut off.")
+        pause = o2.number_input("Seconds between calls", 0, 60, 1,
+                                help="Raise to ~25 for models with a low per-minute token limit.")
 
-        st.subheader("Inspect a clip")
-        c1, c2 = st.columns(2)
-        pick_m = c1.selectbox("Model", list(view_rows), key="inspect_model")
-        pick_c = c2.selectbox("Clip", [r["clip"] for r in view_rows[pick_m]], key="inspect_clip")
-        row = next(r for r in view_rows[pick_m] if r["clip"] == pick_c)
-        if row["error"]:
-            st.error(row["error"])
-        elif row["result"] is None:
-            st.error("Invalid JSON from model")
-            st.code(row["raw"])
-        else:
-            st.dataframe(pd.DataFrame(row["score"]["details"]))
-            with st.expander("Raw model output"):
-                st.json(row["result"])
+        if st.button("Run evaluation", disabled=not (clips and chosen)):
+            results = {}
+            bar = st.progress(0.0)
+            total, done = len(clips) * len(chosen), 0
+            for m in chosen:
+                rows = []
+                for stem, gold, tr in clips:
+                    try:
+                        res, raw, lat, tok = extract_retry(m, tr, int(max_tok) or None, version)
+                        err = None
+                    except Exception as e:  # rate limit, 404, etc.
+                        msg = str(e)
+                        if "json_validate_failed" in msg:
+                            # The model itself failed to produce valid JSON: score it as a failure, not an API error.
+                            res, raw, lat, tok, err = None, msg[:300], None, None, None
+                        else:
+                            res, raw, lat, tok, err = None, "", None, None, msg[:300]
+                    # API errors are NOT scored: they say nothing about the model.
+                    rows.append({"clip": stem, "split": gold.get("split", "dev"), "result": res,
+                                 "raw": raw if res is None else "", "latency_s": lat, "tokens": tok,
+                                 "error": err, "score": None if err else score_clip(gold, res, tr)})
+                    done += 1
+                    bar.progress(done / total)
+                    time.sleep(pause)
+                results[m] = rows
+            st.session_state["eval"] = {
+                "prompt_version": version,
+                "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "results": results,
+            }
 
-        st.download_button(
-            "Download results (commit to data/results/)",
-            data=json.dumps(ev, indent=2, default=str),
-            file_name=f"results_{ev['prompt_version']}_{ev['run_at'][:10]}.json",
-            mime="application/json",
-        )
+        ev = st.session_state.get("eval")
+        if ev:
+            render_results(ev["results"], ev["prompt_version"], "fresh")
+            st.download_button(
+                "Download results (commit to data/results/)",
+                data=json.dumps(ev, indent=2, default=str),
+                file_name=f"results_{ev['prompt_version']}_{ev['run_at'][:10]}.json",
+                mime="application/json",
+            )
