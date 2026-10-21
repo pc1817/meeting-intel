@@ -83,8 +83,8 @@ Prompt v3 raised clean clips on the dev clips from 9/15 to 14/15, but the hold-o
 
 Each clip targets one failure mode: baseline, tentative suggestion, reversed decision, ambiguous owner ("we should…"), discussed-but-not-committed, "we should…" later deferred, tentative idea.
 
-- The transcripts are **synthetic**: <<CONFIRM: written by me / generated with ChatGPT and edited by me>>.
-- The gold labels were <<CONFIRM: drafted with Claude's help and reviewed by me>>.
+- The transcripts are **synthetic**: drafted or generated with ChatGPT or Claude, then checked by me.
+- The gold labels were drafted with AI assistance (ChatGPT's expected results for the hold-out clips; Claude's labels for all 8 clips) and checked by me.
 - The prompt (v3) was written after seeing failures on the dev clips. The hold-out clips were written separately and were **not** used to tune v3.
 - The hold-out clips are speaker-labeled dialogue while the dev clips are narrated, so a hold-out drop could come from the format change as well as from overfitting.
 
