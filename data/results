@@ -1,0 +1,646 @@
+{
+  "prompt_version": "v3",
+  "run_at": "2026-10-20T07:12:37+00:00",
+  "results": {
+    "openai/gpt-oss-120b": [
+      {
+        "clip": "standup_01",
+        "split": "dev",
+        "result": {
+          "summary": "Maria will send the final pricing deck by Friday; Jun will review the vendor contract before Wednesday; the product launch was postponed to March; Alex will prepare an updated project timeline by Thursday; Sarah will gather onboarding requirements for the next meeting; ownership of the onboarding process and vendor delivery schedule confirmation remain unresolved.",
+          "decisions": [
+            {
+              "text": "Postpone the product launch until March",
+              "evidence_quote": "We decided to postpone the product launch until March"
+            }
+          ],
+          "actions": [
+            {
+              "task": "send the final version of the pricing deck to the team",
+              "owner": "Maria",
+              "due": "Friday",
+              "evidence_quote": "Maria finished the first draft of the pricing deck, and she\u2019ll send the final version to the team by Friday"
+            },
+            {
+              "task": "review the vendor contract and flag any concerns",
+              "owner": "Jun",
+              "due": "before Wednesday",
+              "evidence_quote": "Jun, please review the vendor contract and flag any concerns before Wednesday"
+            },
+            {
+              "task": "prepare an updated project timeline reflecting the new launch date",
+              "owner": "Alex",
+              "due": "Thursday",
+              "evidence_quote": "Alex will prepare an updated project timeline reflecting the new launch date by Thursday"
+            },
+            {
+              "task": "gather the outstanding onboarding requirements and share them at our next meeting",
+              "owner": "Sarah",
+              "due": "at our next meeting",
+              "evidence_quote": "Sarah will gather the outstanding onboarding requirements and share them at our next meeting"
+            }
+          ],
+          "open_questions": [
+            "Who will own the onboarding process?",
+            "Confirmation from the vendor about the revised delivery schedule"
+          ]
+        },
+        "raw": "",
+        "latency_s": 1.8604307174682617,
+        "tokens": 1417,
+        "error": null,
+        "score": {
+          "clip_id": "standup_01",
+          "parse_ok": true,
+          "n_actions": 4,
+          "schema_valid": 4,
+          "grounded": 4,
+          "req_total": 4,
+          "req_found": 4,
+          "owner_ok": 4,
+          "due_ok": 4,
+          "opt_found": 0,
+          "invented_owner": 0,
+          "trap_hits": 0,
+          "extra_actions": 0,
+          "dec_total": 1,
+          "dec_found": 1,
+          "false_decisions": 0,
+          "clean": true,
+          "details": [
+            {
+              "gold": "send final pricing deck to team",
+              "kind": "required",
+              "found": true,
+              "model_task": "send the final version of the pricing deck to the team",
+              "model_owner": "Maria",
+              "model_due": "Friday",
+              "match": 1.0,
+              "owner_correct": true,
+              "due_correct": true
+            },
+            {
+              "gold": "review vendor contract and flag concerns",
+              "kind": "required",
+              "found": true,
+              "model_task": "review the vendor contract and flag any concerns",
+              "model_owner": "Jun",
+              "model_due": "before Wednesday",
+              "match": 1.0,
+              "owner_correct": true,
+              "due_correct": true
+            },
+            {
+              "gold": "prepare updated project timeline for new launch date",
+              "kind": "required",
+              "found": true,
+              "model_task": "prepare an updated project timeline reflecting the new launch date",
+              "model_owner": "Alex",
+              "model_due": "Thursday",
+              "match": 1.0,
+              "owner_correct": true,
+              "due_correct": true
+            },
+            {
+              "gold": "gather onboarding requirements and share at next meeting",
+              "kind": "required",
+              "found": true,
+              "model_task": "gather the outstanding onboarding requirements and share them at our next meeting",
+              "model_owner": "Sarah",
+              "model_due": "at our next meeting",
+              "match": 1.0,
+              "owner_correct": true,
+              "due_correct": true
+            },
+            {
+              "gold": "review open items and confirm ownership",
+              "kind": "optional",
+              "found": false
+            }
+          ]
+        }
+      },
+      {
+        "clip": "standup_02",
+        "split": "dev",
+        "result": {
+          "summary": "Marketing progress update with pending budget finalization, visuals to be sent, landing page ready, performance review scheduled, and no decisions made.",
+          "decisions": [],
+          "actions": [
+            {
+              "task": "send the revised campaign visuals to the team",
+              "owner": "Priya",
+              "due": "Thursday",
+              "evidence_quote": "Priya will send the revised campaign visuals to the team by Thursday."
+            },
+            {
+              "task": "review the campaign performance",
+              "owner": null,
+              "due": "next Monday",
+              "evidence_quote": "The team will review the campaign performance next Monday."
+            }
+          ],
+          "open_questions": [
+            "finalize the budget",
+            "Sam could look at the budget and suggest a few ways to reduce costs",
+            "increasing the advertising spend",
+            "running an A/B test"
+          ]
+        },
+        "raw": "",
+        "latency_s": 2.1786458492279053,
+        "tokens": 1508,
+        "error": null,
+        "score": {
+          "clip_id": "standup_02",
+          "parse_ok": true,
+          "n_actions": 2,
+          "schema_valid": 2,
+          "grounded": 2,
+          "req_total": 1,
+          "req_found": 1,
+          "owner_ok": 1,
+          "due_ok": 1,
+          "opt_found": 1,
+          "invented_owner": 0,
+          "trap_hits": 0,
+          "extra_actions": 0,
+          "dec_total": 0,
+          "dec_found": 0,
+          "false_decisions": 0,
+          "clean": true,
+          "details": [
+            {
+              "gold": "send revised campaign visuals to the team",
+              "kind": "required",
+              "found": true,
+              "model_task": "send the revised campaign visuals to the team",
+              "model_owner": "Priya",
+              "model_due": "Thursday",
+              "match": 1.0,
+              "owner_correct": true,
+              "due_correct": true
+            },
+            {
+              "gold": "review campaign performance",
+              "kind": "optional",
+              "found": true,
+              "model_task": "review the campaign performance",
+              "model_owner": null,
+              "model_due": "next Monday",
+              "match": 1.0
+            }
+          ]
+        }
+      },
+      {
+        "clip": "standup_03",
+        "split": "dev",
+        "result": {
+          "summary": "The team reviewed proposals from Vendor A and Vendor B, initially chose Vendor A but later decided to move forward with Vendor B; James will contact Vendor B for an updated contract by Wednesday, Maria will compare the final pricing against the approved budget by Friday, and the team will reconvene Thursday to check outstanding requirements, with the selection still pending contract review.",
+          "decisions": [
+            {
+              "text": "move forward with Vendor B",
+              "evidence_quote": "we decided against Vendor A and will move forward with Vendor B instead"
+            }
+          ],
+          "actions": [
+            {
+              "task": "contact Vendor B to request the updated contract",
+              "owner": "James",
+              "due": "Wednesday",
+              "evidence_quote": "James will contact Vendor B to request the updated contract by Wednesday"
+            },
+            {
+              "task": "compare the final pricing against our approved budget",
+              "owner": "Maria",
+              "due": "Friday",
+              "evidence_quote": "Maria will compare the final pricing against our approved budget by Friday"
+            },
+            {
+              "task": "reconvene to check the outstanding requirements",
+              "owner": null,
+              "due": "Thursday",
+              "evidence_quote": "The team will reconvene on Thursday to check the outstanding requirements"
+            }
+          ],
+          "open_questions": [
+            "selection is still pending contract review"
+          ]
+        },
+        "raw": "",
+        "latency_s": 1.6444118022918701,
+        "tokens": 1269,
+        "error": null,
+        "score": {
+          "clip_id": "standup_03",
+          "parse_ok": true,
+          "n_actions": 3,
+          "schema_valid": 3,
+          "grounded": 3,
+          "req_total": 2,
+          "req_found": 2,
+          "owner_ok": 2,
+          "due_ok": 2,
+          "opt_found": 1,
+          "invented_owner": 0,
+          "trap_hits": 0,
+          "extra_actions": 0,
+          "dec_total": 1,
+          "dec_found": 1,
+          "false_decisions": 0,
+          "clean": true,
+          "details": [
+            {
+              "gold": "contact Vendor B to request the updated contract",
+              "kind": "required",
+              "found": true,
+              "model_task": "contact Vendor B to request the updated contract",
+              "model_owner": "James",
+              "model_due": "Wednesday",
+              "match": 1.0,
+              "owner_correct": true,
+              "due_correct": true
+            },
+            {
+              "gold": "compare final pricing against the approved budget",
+              "kind": "required",
+              "found": true,
+              "model_task": "compare the final pricing against our approved budget",
+              "model_owner": "Maria",
+              "model_due": "Friday",
+              "match": 1.0,
+              "owner_correct": true,
+              "due_correct": true
+            },
+            {
+              "gold": "reconvene to check outstanding requirements",
+              "kind": "optional",
+              "found": true,
+              "model_task": "reconvene to check the outstanding requirements",
+              "model_owner": null,
+              "model_due": "Thursday",
+              "match": 1.0
+            }
+          ]
+        }
+      },
+      {
+        "clip": "standup_04",
+        "split": "dev",
+        "result": {
+          "summary": "The monthly performance report is near completion, pending figures from Customer Success; the team decided to include a month\u2011over\u2011month comparison and plans to send the report to leadership by Friday, with Nina following up on missing data.",
+          "decisions": [
+            {
+              "text": "Include a comparison against last month's results in the report",
+              "evidence_quote": "The team agreed that the report should include a comparison against last month's results."
+            }
+          ],
+          "actions": [
+            {
+              "task": "send the report to leadership",
+              "owner": null,
+              "due": "Friday",
+              "evidence_quote": "We should send the report to leadership by Friday."
+            },
+            {
+              "task": "follow up with Customer Success and request the missing figures",
+              "owner": "Nina",
+              "due": "Wednesday",
+              "evidence_quote": "Nina will follow up with Customer Success and request the missing figures by Wednesday."
+            }
+          ],
+          "open_questions": [
+            "Who will own the final report distribution?",
+            "Will the forecast for next quarter be available in time?"
+          ]
+        },
+        "raw": "",
+        "latency_s": 1.6602654457092285,
+        "tokens": 1277,
+        "error": null,
+        "score": {
+          "clip_id": "standup_04",
+          "parse_ok": true,
+          "n_actions": 2,
+          "schema_valid": 2,
+          "grounded": 2,
+          "req_total": 2,
+          "req_found": 2,
+          "owner_ok": 2,
+          "due_ok": 2,
+          "opt_found": 0,
+          "invented_owner": 0,
+          "trap_hits": 0,
+          "extra_actions": 0,
+          "dec_total": 1,
+          "dec_found": 1,
+          "false_decisions": 0,
+          "clean": true,
+          "details": [
+            {
+              "gold": "follow up with Customer Success and request the missing figures",
+              "kind": "required",
+              "found": true,
+              "model_task": "follow up with Customer Success and request the missing figures",
+              "model_owner": "Nina",
+              "model_due": "Wednesday",
+              "match": 1.0,
+              "owner_correct": true,
+              "due_correct": true
+            },
+            {
+              "gold": "send the report to leadership",
+              "kind": "required",
+              "found": true,
+              "model_task": "send the report to leadership",
+              "model_owner": null,
+              "model_due": "Friday",
+              "match": 1.0,
+              "owner_correct": true,
+              "due_correct": true
+            }
+          ]
+        }
+      },
+      {
+        "clip": "standup_05",
+        "split": "dev",
+        "result": {
+          "summary": "The team reviewed onboarding feedback, discussed creating a short video, adding a checklist, or improving the written guide, but made no decision; they also considered a weekly onboarding Q&A session without assigning an organizer.",
+          "decisions": [],
+          "actions": [],
+          "open_questions": [
+            "Which onboarding improvement approach (video, checklist, or improved guide) will be chosen?",
+            "Who will organize the weekly onboarding Q&A session?"
+          ]
+        },
+        "raw": "",
+        "latency_s": 1.2724437713623047,
+        "tokens": 1070,
+        "error": null,
+        "score": {
+          "clip_id": "standup_05",
+          "parse_ok": true,
+          "n_actions": 0,
+          "schema_valid": 0,
+          "grounded": 0,
+          "req_total": 0,
+          "req_found": 0,
+          "owner_ok": 0,
+          "due_ok": 0,
+          "opt_found": 0,
+          "invented_owner": 0,
+          "trap_hits": 0,
+          "extra_actions": 0,
+          "dec_total": 0,
+          "dec_found": 0,
+          "false_decisions": 0,
+          "clean": true,
+          "details": []
+        }
+      },
+      {
+        "clip": "standup_06",
+        "split": "holdout",
+        "result": {
+          "summary": "The team evaluated Asana and decided to adopt Monday.com for project management, with Leo handling migration and checking task owner transfer.",
+          "decisions": [
+            {
+              "text": "Use Monday.com as the project management tool going forward",
+              "evidence_quote": "Maya: In that case, let's go with Monday.com instead. We need the workload reporting built in.\nLeo: Agreed.\nMaya: Sounds good. Let's use Monday.com going forward."
+            }
+          ],
+          "actions": [
+            {
+              "task": "Migrate the current task board into Monday.com",
+              "owner": "Leo",
+              "due": "before our next team sync",
+              "evidence_quote": "Leo: Agreed. I'll migrate the current task board into Monday.com before our next team sync."
+            },
+            {
+              "task": "Check whether we can transfer the existing task owners automatically",
+              "owner": "Leo",
+              "due": null,
+              "evidence_quote": "Leo: I'll also check whether we can transfer the existing task owners automatically."
+            }
+          ],
+          "open_questions": []
+        },
+        "raw": "",
+        "latency_s": 1.3703227043151855,
+        "tokens": 1175,
+        "error": null,
+        "score": {
+          "clip_id": "standup_06",
+          "parse_ok": true,
+          "n_actions": 2,
+          "schema_valid": 2,
+          "grounded": 2,
+          "req_total": 2,
+          "req_found": 2,
+          "owner_ok": 2,
+          "due_ok": 2,
+          "opt_found": 0,
+          "invented_owner": 0,
+          "trap_hits": 0,
+          "extra_actions": 0,
+          "dec_total": 1,
+          "dec_found": 1,
+          "false_decisions": 0,
+          "clean": true,
+          "details": [
+            {
+              "gold": "migrate the current task board into Monday.com",
+              "kind": "required",
+              "found": true,
+              "model_task": "Migrate the current task board into Monday.com",
+              "model_owner": "Leo",
+              "model_due": "before our next team sync",
+              "match": 1.0,
+              "owner_correct": true,
+              "due_correct": true
+            },
+            {
+              "gold": "check whether existing task owners can be transferred automatically",
+              "kind": "required",
+              "found": true,
+              "model_task": "Check whether we can transfer the existing task owners automatically",
+              "model_owner": "Leo",
+              "model_due": null,
+              "match": 1.0,
+              "owner_correct": true,
+              "due_correct": true
+            }
+          ]
+        }
+      },
+      {
+        "clip": "standup_07",
+        "split": "holdout",
+        "result": {
+          "summary": "The team discussed missing lead source data in the weekly performance report, decided to add a campaign-by-campaign breakdown by Thursday, and Omar will verify lead totals against the CRM this afternoon; they will review the reporting gap at the next check\u2011in to decide on handling the new breakdown.",
+          "decisions": [
+            {
+              "text": "Add a campaign-by-campaign breakdown to the weekly performance report by Thursday",
+              "evidence_quote": "We should add a campaign-by-campaign breakdown by Thursday"
+            }
+          ],
+          "actions": [
+            {
+              "task": "Add a campaign-by-campaign breakdown to the weekly performance report",
+              "owner": null,
+              "due": "Thursday",
+              "evidence_quote": "We should add a campaign-by-campaign breakdown by Thursday"
+            },
+            {
+              "task": "Verify the current lead totals against the CRM",
+              "owner": "Omar",
+              "due": "this afternoon",
+              "evidence_quote": "I'll verify the current lead totals against the CRM this afternoon"
+            }
+          ],
+          "open_questions": [
+            "Decide how to handle the new breakdown after reviewing the reporting gap at the next check-in"
+          ]
+        },
+        "raw": "",
+        "latency_s": 1.7402501106262207,
+        "tokens": 1316,
+        "error": null,
+        "score": {
+          "clip_id": "standup_07",
+          "parse_ok": true,
+          "n_actions": 2,
+          "schema_valid": 2,
+          "grounded": 2,
+          "req_total": 1,
+          "req_found": 1,
+          "owner_ok": 1,
+          "due_ok": 1,
+          "opt_found": 0,
+          "invented_owner": 0,
+          "trap_hits": 1,
+          "extra_actions": 0,
+          "dec_total": 0,
+          "dec_found": 0,
+          "false_decisions": 1,
+          "clean": false,
+          "details": [
+            {
+              "gold": "verify the current lead totals against the CRM",
+              "kind": "required",
+              "found": true,
+              "model_task": "Verify the current lead totals against the CRM",
+              "model_owner": "Omar",
+              "model_due": "this afternoon",
+              "match": 1.0,
+              "owner_correct": true,
+              "due_correct": true
+            },
+            {
+              "gold": "review the reporting gap and decide how to handle the new breakdown",
+              "kind": "optional",
+              "found": false
+            },
+            {
+              "gold": "(trap)",
+              "kind": "trap hit",
+              "model_task": "Add a campaign-by-campaign breakdown to the weekly performance report",
+              "model_owner": null
+            },
+            {
+              "gold": "(trap)",
+              "kind": "decision trap hit",
+              "model_task": "Add a campaign-by-campaign breakdown to the weekly performance report by Thursday"
+            }
+          ]
+        }
+      },
+      {
+        "clip": "standup_08",
+        "split": "holdout",
+        "result": {
+          "summary": "The team discussed low response rates to follow-up emails, considered texting customers but noted consent concerns, decided to gather examples of missed follow-ups before changing the process, and planned to revisit the texting idea later.",
+          "decisions": [
+            {
+              "text": "Gather a few examples of the missed follow-ups before changing anything",
+              "evidence_quote": "Let's gather a few examples of the missed follow-ups before changing anything."
+            }
+          ],
+          "actions": [
+            {
+              "task": "bring two recent cases to the next meeting",
+              "owner": "Ella",
+              "due": "next meeting",
+              "evidence_quote": "I can bring two recent cases to our next meeting so we can look at what happened."
+            },
+            {
+              "task": "gather a few examples of the missed follow-ups",
+              "owner": null,
+              "due": null,
+              "evidence_quote": "Let's gather a few examples of the missed follow-ups before changing anything."
+            }
+          ],
+          "open_questions": [
+            "Check whether customers have consented to receive texts",
+            "Determine if the current process is the main problem",
+            "Revisit the text-message idea after reviewing cases"
+          ]
+        },
+        "raw": "",
+        "latency_s": 2.7855429649353027,
+        "tokens": 1223,
+        "error": null,
+        "score": {
+          "clip_id": "standup_08",
+          "parse_ok": true,
+          "n_actions": 2,
+          "schema_valid": 2,
+          "grounded": 2,
+          "req_total": 1,
+          "req_found": 1,
+          "owner_ok": 1,
+          "due_ok": 1,
+          "opt_found": 0,
+          "invented_owner": 0,
+          "trap_hits": 0,
+          "extra_actions": 1,
+          "dec_total": 0,
+          "dec_found": 0,
+          "false_decisions": 1,
+          "clean": false,
+          "details": [
+            {
+              "gold": "bring two recent missed follow-up cases to the next meeting",
+              "kind": "required",
+              "found": true,
+              "model_task": "bring two recent cases to the next meeting",
+              "model_owner": "Ella",
+              "model_due": "next meeting",
+              "match": 0.75,
+              "owner_correct": true,
+              "due_correct": true
+            },
+            {
+              "gold": "revisit the text-message idea after reviewing the cases",
+              "kind": "optional",
+              "found": false
+            },
+            {
+              "gold": "(none)",
+              "kind": "extra",
+              "model_task": "gather a few examples of the missed follow-ups",
+              "model_owner": null
+            },
+            {
+              "gold": "(none)",
+              "kind": "false decision",
+              "model_task": "Gather a few examples of the missed follow-ups before changing anything"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
