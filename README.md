@@ -4,7 +4,7 @@ Turns a meeting recording or transcript into structured JSON: summary, decisions
 
 **Live demo:** https://www.loom.com/share/4b9ba7177618468fa7fc0a92d365a695 (free hosting: the first load can take ~30 seconds, and it shares a free API quota, so rate-limit errors are possible)
 
-![Meeting app screenshot]https://github.com/pc1817/meeting-intel/blob/main/scoreboard.png?raw=true
+https://github.com/pc1817/meeting-intel/blob/main/scoreboard.png?raw=true
 
 ## Why this project
 
