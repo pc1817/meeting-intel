@@ -2,7 +2,7 @@
 
 Turns a meeting recording or transcript into structured JSON: summary, decisions, action items (owner, due date, supporting quote) and open questions. It also includes an **evaluation harness** that scores any model against a hand-labeled test set, so you can see *how* a model fails instead of trusting a demo.
 
-**Live demo:** <<DEMO URL>> (free hosting: the first load can take ~30 seconds, and it shares a free API quota, so rate-limit errors are possible)
+**Live demo:** https://www.loom.com/share/4b9ba7177618468fa7fc0a92d365a695 (free hosting: the first load can take ~30 seconds, and it shares a free API quota, so rate-limit errors are possible)
 
 ![Screenshot of the Evaluate tab](docs/scoreboard.png)
 
