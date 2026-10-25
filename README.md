@@ -4,9 +4,9 @@ Turns a meeting recording or transcript into structured JSON: summary, decisions
 
 **Live demo:** https://www.loom.com/share/4b9ba7177618468fa7fc0a92d365a695 (free hosting: the first load can take ~30 seconds, and it shares a free API quota, so rate-limit errors are possible)
 
-https://github.com/pc1817/meeting-intel/blob/main/scoreboard.png?raw=true
+![Scoreboard screenshot](https://github.com/pc1817/meeting-intel/blob/main/scoreboard.png?raw=true
 
-## Why this project
+## Why this project)
 
 Most meeting summarizers are shown with one good example. This one is built around the question "when does it get it wrong?": it separates real commitments from tentative ideas, reversed decisions, unassigned work ("we should…") and unresolved topics, and measures each failure type per model and per prompt version.
 
